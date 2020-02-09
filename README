@@ -1,5 +1,4 @@
 Usage for the firewall.py
-
 In python3:
 >>> from firewall import Firewall
 >>> fw = Firewall("/path/to/fw.csv") # for example, rule1.csv
@@ -24,13 +23,14 @@ a. how you tested your solution
     Some special cases I will test:
     1. both port and IP are ranges in a rule
     2. generate a packet that all columns meet a rule except port
-    3. Same direction and protocol, port and IP range overlapping.
+    3. Same direction and protocol, port or IP range overlapping in different rules.
        For example (port): [10-20],[15-25] / [23-59],[45-48]
     4. Edge cases for both port and IP and for both rule and packet
        For example: port 1, port 65535, IP 0.0.0.0, IP 255.255.255.255
     5. Check if the list comparison is correct for IP
        For example: 0.0.3.0 is between 0.0.2.255-0.1.0.0
-    6. Randomly generate some rules and packets
+    6. Randomly generate some rules and packets (Using random function to generate random
+       numbers to fill in the packet and rule format)
     Currently I believe my code will work for all these cases, but still need to write some
     test code to make sure.
 b. any interesting coding, design, or algorithmic choices you’d like to point out
