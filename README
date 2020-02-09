@@ -1,0 +1,65 @@
+Usage for the firewall.py
+
+In python3:
+>>> from firewall import Firewall
+>>> fw = Firewall("/path/to/fw.csv") # for example, rule1.csv
+>>> fw.accept_packet("inbound", "tcp", 80, "192.168.1.2")
+
+Programming time: 1hr 45min
+
+Complexity analysis (N is the number of rules)
+Space complexity: O(N). Rules are stored in a list
+Time complexity:
+__init__: O(N*logN), which comes from the sort() function 
+    Note that the map function in line 10, 11 are O(1) because we know that the list after
+    split will be 2 elements in port and 8 elements in IP at most in total.
+binary_search: O(1), compare all 4 columns in a rule.
+accept_packet: O(logN), use binary search to find out if a packet is allowed or not.
+
+a. how you tested your solution
+    As I don't have enough time for the test cases, I only imported the test cases given
+    in the given pdf file and passed it all. If I have more time, I will put my effort 
+    on testing ports and IPs, as I can assume the direction and protocol should be simple
+    to test.
+    Some special cases I will test:
+    1. both port and IP are ranges in a rule
+    2. generate a packet that all columns meet a rule except port
+    3. Same direction and protocol, port and IP range overlapping.
+       For example (port): [10-20],[15-25] / [23-59],[45-48]
+    4. Edge cases for both port and IP and for both rule and packet
+       For example: port 1, port 65535, IP 0.0.0.0, IP 255.255.255.255
+    5. Check if the list comparison is correct for IP
+       For example: 0.0.3.0 is between 0.0.2.255-0.1.0.0
+    6. Randomly generate some rules and packets
+    Currently I believe my code will work for all these cases, but still need to write some
+    test code to make sure.
+b. any interesting coding, design, or algorithmic choices you’d like to point out
+    First, as I assumed the accept_packet function will be called a great amount of times, 
+    I would like to make sure that I can do it as quickly as possible, and I came up with
+    using binary search for it. To do so, it is essential to let the rules in Firewall a 
+    sorted list, which also means that the elements in the list are able to compare to each 
+    other (can't use dictionary for example because this data structure is not comparable). 
+    Therefore, I split the port range and IP address range into list to make them comparable. 
+    If the given rule is a range, then the size of the port or IP list is 2 with start and 
+    end, else it's 1. After processing the data in a single rule, I directly used sort() 
+    function in standard library with time complexity O(N*logN) to simplify the code with 
+    best time performance.
+    Here you may notice that using sort could take a great amount of time when the size of 
+    rules is tremendous. The reason why is because the Firewall initialization should only 
+    be called once, and reasonably don't need to do it in real-time. If one wants to add 
+    more rules to the object, simply use binary search to find the index to insert, which 
+    won't take much time adding new rules.
+    Another thing I want to mention is the design of binary_search function. It is important 
+    to customize a comparison function for the binary search. If the packet is allowed in
+    the rule, then this function will return 0. If the packet is "smaller" than the rule,
+    it will return -1, else return 1. Notice that if a packet has smaller port(IP) than 
+    the rule's start or greater port(IP) than the rule's end, we can know that the packet 
+    is out of bound and not allowed in this rule.
+    The comment in the code are the original version of my code, which is easier to under-
+    stand. While the current one is to shorten the length of code.
+c. any refinements or optimizations that you would’ve implemented if you had more time
+    I will do more testing if I had more time.
+d. anything else you’d like the reviewer to know
+    1. The reason that I chose Python is because it is easiest to parse the string and mani-
+    pulate the list
+    2. Team preference: Platform team = Data team > Policy team
